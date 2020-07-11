@@ -54,13 +54,19 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		BuatBarang func(childComplexity int, input model.BarangBaru) int
-		BuatUser   func(childComplexity int, input model.UserBaru) int
+		BuatBarang  func(childComplexity int, input model.BarangBaru) int
+		BuatUser    func(childComplexity int, input model.UserBaru) int
+		EditBarang  func(childComplexity int, id string, input model.BarangBaru) int
+		EditUser    func(childComplexity int, id string, input model.UserBaru) int
+		HapusBarang func(childComplexity int, id string) int
+		HapusUser   func(childComplexity int, id string) int
 	}
 
 	Query struct {
-		SemuaBarang func(childComplexity int) int
-		SemuaUser   func(childComplexity int) int
+		BarangPakeID func(childComplexity int, id string) int
+		SemuaBarang  func(childComplexity int) int
+		SemuaUser    func(childComplexity int) int
+		UserPakeID   func(childComplexity int, id string) int
 	}
 
 	User struct {
@@ -73,11 +79,17 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	BuatBarang(ctx context.Context, input model.BarangBaru) (*model.Barang, error)
+	EditBarang(ctx context.Context, id string, input model.BarangBaru) (*model.Barang, error)
+	HapusBarang(ctx context.Context, id string) (bool, error)
 	BuatUser(ctx context.Context, input model.UserBaru) (*model.User, error)
+	EditUser(ctx context.Context, id string, input model.UserBaru) (*model.User, error)
+	HapusUser(ctx context.Context, id string) (bool, error)
 }
 type QueryResolver interface {
 	SemuaBarang(ctx context.Context) ([]*model.Barang, error)
+	BarangPakeID(ctx context.Context, id string) (*model.Barang, error)
 	SemuaUser(ctx context.Context) ([]*model.User, error)
+	UserPakeID(ctx context.Context, id string) (*model.User, error)
 }
 
 type executableSchema struct {
@@ -168,6 +180,66 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.BuatUser(childComplexity, args["input"].(model.UserBaru)), true
 
+	case "Mutation.editBarang":
+		if e.complexity.Mutation.EditBarang == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_editBarang_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.EditBarang(childComplexity, args["id"].(string), args["input"].(model.BarangBaru)), true
+
+	case "Mutation.editUser":
+		if e.complexity.Mutation.EditUser == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_editUser_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.EditUser(childComplexity, args["id"].(string), args["input"].(model.UserBaru)), true
+
+	case "Mutation.hapusBarang":
+		if e.complexity.Mutation.HapusBarang == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_hapusBarang_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.HapusBarang(childComplexity, args["id"].(string)), true
+
+	case "Mutation.hapusUser":
+		if e.complexity.Mutation.HapusUser == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_hapusUser_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.HapusUser(childComplexity, args["id"].(string)), true
+
+	case "Query.barangPakeId":
+		if e.complexity.Query.BarangPakeID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_barangPakeId_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.BarangPakeID(childComplexity, args["id"].(string)), true
+
 	case "Query.semuaBarang":
 		if e.complexity.Query.SemuaBarang == nil {
 			break
@@ -181,6 +253,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.SemuaUser(childComplexity), true
+
+	case "Query.userPakeId":
+		if e.complexity.Query.UserPakeID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_userPakeId_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.UserPakeID(childComplexity, args["id"].(string)), true
 
 	case "User.id":
 		if e.complexity.User.ID == nil {
@@ -298,7 +382,9 @@ type User {
 
 type Query {
   semuaBarang: [Barang!]!
+  barangPakeId(id: ID!): Barang!
   semuaUser: [User!]!
+  userPakeId(id: ID!): User!
 }
 
 # Mutations and Input
@@ -317,7 +403,11 @@ input UserBaru {
 
 type Mutation {
   buatBarang(input: BarangBaru!): Barang!
+  editBarang(id: ID!, input: BarangBaru!): Barang!
+  hapusBarang(id: ID!): Boolean!
   buatUser(input: UserBaru!): User!
+  editUser(id: ID!, input: UserBaru!): User!
+  hapusUser(id: ID!): Boolean!
 }
 `, BuiltIn: false},
 }
@@ -355,6 +445,78 @@ func (ec *executionContext) field_Mutation_buatUser_args(ctx context.Context, ra
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_editBarang_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	var arg1 model.BarangBaru
+	if tmp, ok := rawArgs["input"]; ok {
+		arg1, err = ec.unmarshalNBarangBaru2githubᚗcomᚋpadulkemidᚋpingposᚋgraphᚋmodelᚐBarangBaru(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_editUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	var arg1 model.UserBaru
+	if tmp, ok := rawArgs["input"]; ok {
+		arg1, err = ec.unmarshalNUserBaru2githubᚗcomᚋpadulkemidᚋpingposᚋgraphᚋmodelᚐUserBaru(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_hapusBarang_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_hapusUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -366,6 +528,34 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_barangPakeId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_userPakeId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -684,6 +874,88 @@ func (ec *executionContext) _Mutation_buatBarang(ctx context.Context, field grap
 	return ec.marshalNBarang2ᚖgithubᚗcomᚋpadulkemidᚋpingposᚋgraphᚋmodelᚐBarang(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Mutation_editBarang(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_editBarang_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().EditBarang(rctx, args["id"].(string), args["input"].(model.BarangBaru))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Barang)
+	fc.Result = res
+	return ec.marshalNBarang2ᚖgithubᚗcomᚋpadulkemidᚋpingposᚋgraphᚋmodelᚐBarang(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_hapusBarang(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_hapusBarang_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().HapusBarang(rctx, args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Mutation_buatUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -725,6 +997,88 @@ func (ec *executionContext) _Mutation_buatUser(ctx context.Context, field graphq
 	return ec.marshalNUser2ᚖgithubᚗcomᚋpadulkemidᚋpingposᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Mutation_editUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_editUser_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().EditUser(rctx, args["id"].(string), args["input"].(model.UserBaru))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgithubᚗcomᚋpadulkemidᚋpingposᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_hapusUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_hapusUser_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().HapusUser(rctx, args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_semuaBarang(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -759,6 +1113,47 @@ func (ec *executionContext) _Query_semuaBarang(ctx context.Context, field graphq
 	return ec.marshalNBarang2ᚕᚖgithubᚗcomᚋpadulkemidᚋpingposᚋgraphᚋmodelᚐBarangᚄ(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_barangPakeId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_barangPakeId_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().BarangPakeID(rctx, args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Barang)
+	fc.Result = res
+	return ec.marshalNBarang2ᚖgithubᚗcomᚋpadulkemidᚋpingposᚋgraphᚋmodelᚐBarang(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_semuaUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -791,6 +1186,47 @@ func (ec *executionContext) _Query_semuaUser(ctx context.Context, field graphql.
 	res := resTmp.([]*model.User)
 	fc.Result = res
 	return ec.marshalNUser2ᚕᚖgithubᚗcomᚋpadulkemidᚋpingposᚋgraphᚋmodelᚐUserᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_userPakeId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_userPakeId_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().UserPakeID(rctx, args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgithubᚗcomᚋpadulkemidᚋpingposᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2204,8 +2640,28 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "editBarang":
+			out.Values[i] = ec._Mutation_editBarang(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "hapusBarang":
+			out.Values[i] = ec._Mutation_hapusBarang(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "buatUser":
 			out.Values[i] = ec._Mutation_buatUser(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "editUser":
+			out.Values[i] = ec._Mutation_editUser(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "hapusUser":
+			out.Values[i] = ec._Mutation_hapusUser(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -2249,6 +2705,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "barangPakeId":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_barangPakeId(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "semuaUser":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -2258,6 +2728,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_semuaUser(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "userPakeId":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_userPakeId(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

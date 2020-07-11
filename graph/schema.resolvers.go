@@ -33,6 +33,26 @@ func (r *mutationResolver) BuatBarang(ctx context.Context, input model.BarangBar
 	return barang, nil
 }
 
+func (r *mutationResolver) EditBarang(ctx context.Context, id string, input model.BarangBaru) (*model.Barang, error) {
+	barang := &model.Barang{
+		Nama:      input.Nama,
+		Harga:     input.Harga,
+		Stock:     input.Stock,
+		Vendor:    input.Vendor,
+		UpdatedAt: utils.JamWaktu(),
+	}
+
+	data := controller.EditBarang(id, barang)
+
+	return data, nil
+}
+
+func (r *mutationResolver) HapusBarang(ctx context.Context, id string) (bool, error) {
+	data := controller.DeleteBarang(id)
+
+	return data, nil
+}
+
 func (r *mutationResolver) BuatUser(ctx context.Context, input model.UserBaru) (*model.User, error) {
 	hashed, _ := utils.HashPassword(input.Password)
 
@@ -52,14 +72,46 @@ func (r *mutationResolver) BuatUser(ctx context.Context, input model.UserBaru) (
 	return user, nil
 }
 
+func (r *mutationResolver) EditUser(ctx context.Context, id string, input model.UserBaru) (*model.User, error) {
+	hashed, _ := utils.HashPassword(input.Password)
+
+	user := &model.User{
+		Username: input.Username,
+		Password: hashed,
+		Role:     input.Role,
+	}
+
+	data := controller.EditUser(id, user)
+
+	return data, nil
+}
+
+func (r *mutationResolver) HapusUser(ctx context.Context, id string) (bool, error) {
+	data := controller.DeleteUser(id)
+
+	return data, nil
+}
+
 func (r *queryResolver) SemuaBarang(ctx context.Context) ([]*model.Barang, error) {
 	data := controller.NyariBarangDiDb()
 
 	return data, nil
 }
 
+func (r *queryResolver) BarangPakeID(ctx context.Context, id string) (*model.Barang, error) {
+	data := controller.NyariBarangPakeId(id)
+
+	return data, nil
+}
+
 func (r *queryResolver) SemuaUser(ctx context.Context) ([]*model.User, error) {
 	data := controller.NyariUserDiDb()
+
+	return data, nil
+}
+
+func (r *queryResolver) UserPakeID(ctx context.Context, id string) (*model.User, error) {
+	data := controller.NyariUserPakeId(id)
 
 	return data, nil
 }

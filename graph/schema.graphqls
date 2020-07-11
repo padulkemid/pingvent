@@ -22,7 +22,9 @@ type User {
 
 type Query {
   semuaBarang: [Barang!]!
+  barangPakeId(id: ID!): Barang!
   semuaUser: [User!]!
+  userPakeId(id: ID!): User!
 }
 
 # Mutations and Input
@@ -41,5 +43,9 @@ input UserBaru {
 
 type Mutation {
   buatBarang(input: BarangBaru!): Barang!
+  editBarang(id: ID!, input: BarangBaru!): Barang!
+  hapusBarang(id: ID!): Boolean!
   buatUser(input: UserBaru!): User!
+  editUser(id: ID!, input: UserBaru!): User!
+  hapusUser(id: ID!): Boolean!
 }

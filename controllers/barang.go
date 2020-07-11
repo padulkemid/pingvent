@@ -74,5 +74,59 @@ func NyariBarangDiDb() []*model.Barang {
 		panic(err)
 	}
 
+	log.Printf("Noh gua kasi semua barang!")
+
 	return barang
+}
+
+func NyariBarangPakeId(id string) *model.Barang {
+	barang := &model.Barang{ID: id}
+
+	err := dbConnect.Select(barang)
+
+	if err != nil {
+		panic(err)
+	}
+
+	log.Printf("Nih lu minta barang dari ID: %s", id)
+
+	return barang
+}
+
+func EditBarang(id string, barang *model.Barang) *model.Barang {
+	barangLama := NyariBarangPakeId(id)
+
+	editedBarang := &model.Barang{
+		ID:        id,
+		Nama:      barang.Nama,
+		Harga:     barang.Harga,
+		Stock:     barang.Stock,
+		Vendor:    barang.Vendor,
+		CreatedAt: barangLama.CreatedAt,
+		UpdatedAt: barang.UpdatedAt,
+	}
+
+	err := dbConnect.Update(editedBarang)
+
+	if err != nil {
+		panic(err)
+	}
+
+	log.Printf("Barang udah diapdet")
+
+	return editedBarang
+}
+
+func DeleteBarang(id string) bool {
+	barang := &model.Barang{ID: id}
+
+	err := dbConnect.Delete(barang)
+
+	if err != nil {
+		panic(err)
+	}
+
+	log.Printf("Barang udah diapus")
+
+	return true
 }
