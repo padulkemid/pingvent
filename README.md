@@ -9,6 +9,7 @@ Your most affordable POS system. 😎
   - `chi` for adding cors and muxing functions ( especially cors ).
   - `godotenv` for those envar things.
   - `gorilla/websocket` for websocket transport middleware.
+  - `bcrypt` hash all the things.
 
 # Contributing 👉🏻👈🏻
 
