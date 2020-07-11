@@ -16,3 +16,6 @@
 
 # Environment Variables
 .env
+
+# Setup backup ( gqlgen always refresh things )
+gqlgen_schema.bak
