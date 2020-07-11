@@ -2,19 +2,32 @@
 
 package model
 
-type NewTodo struct {
-	Text   string `json:"text"`
-	UserID string `json:"userId"`
+type Barang struct {
+	ID        string  `json:"id"`
+	Nama      string  `json:"nama" pg:",unique"`
+	Harga     float64 `json:"harga"`
+	Stock     int     `json:"stock"`
+	Vendor    string  `json:"vendor"`
+	CreatedAt string  `json:"createdAt"`
+	UpdatedAt string  `json:"updatedAt"`
 }
 
-type Todo struct {
-	ID   string `json:"id"`
-	Text string `json:"text"`
-	Done bool   `json:"done"`
-	User *User  `json:"user"`
+type BarangBaru struct {
+	Nama   string  `json:"nama"`
+	Harga  float64 `json:"harga"`
+	Stock  int     `json:"stock"`
+	Vendor string  `json:"vendor"`
 }
 
 type User struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID       string `json:"id"`
+	Username string `json:"username" pg:",unique"`
+	Password string `json:"password"`
+	Role     string `json:"role"`
+}
+
+type UserBaru struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Role     string `json:"role"`
 }

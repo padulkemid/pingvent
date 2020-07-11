@@ -2,27 +2,44 @@
 #
 # https://gqlgen.com/getting-started/
 
-type Todo {
+# Queries and Types
+type Barang {
   id: ID!
-  text: String!
-  done: Boolean!
-  user: User!
+  nama: String!
+  harga: Float!
+  stock: Int!
+  vendor: String!
+  createdAt: String!
+  updatedAt: String!
 }
 
 type User {
   id: ID!
-  name: String!
+  username: String!
+  password: String!
+  role: String!
 }
 
 type Query {
-  todos: [Todo!]!
+  semuaBarang: [Barang!]!
+  semuaUser: [User!]!
 }
 
-input NewTodo {
-  text: String!
-  userId: String!
+# Mutations and Input
+input BarangBaru {
+  nama: String!
+  harga: Float!
+  stock: Int!
+  vendor: String!
+}
+
+input UserBaru {
+  username: String!
+  password: String!
+  role: String!
 }
 
 type Mutation {
-  createTodo(input: NewTodo!): Todo!
+  buatBarang(input: BarangBaru!): Barang!
+  buatUser(input: UserBaru!): User!
 }
