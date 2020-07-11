@@ -18,7 +18,7 @@ Your most affordable POS system. 😎
   3. `createdb` the DB you want to use.
   4. `go get` all the things.
   5. Edit stuffs.
-  6. I recommend you to run using `air`. [really helps you out!](https://github.com/cosmtrek/air)
+  6. I recommend you to run using `air`, [click here!](https://github.com/cosmtrek/air)
   7. Have fun!
 
 # License 💳
