@@ -4,7 +4,7 @@ package model
 
 type Barang struct {
 	ID        string  `json:"id"`
-	Nama      string  `json:"nama" pg:",unique"`
+	Nama      string  `sql:",unique" json:"nama"`
 	Harga     float64 `json:"harga"`
 	Stock     int     `json:"stock"`
 	Vendor    string  `json:"vendor"`
@@ -21,7 +21,7 @@ type BarangBaru struct {
 
 type User struct {
 	ID       string `json:"id"`
-	Username string `json:"username" pg:",unique"`
+	Username string `sql:",unique" json:"username"`
 	Password string `json:"password"`
 	Role     string `json:"role"`
 }
