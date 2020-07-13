@@ -16,43 +16,82 @@ import (
 )
 
 func (r *mutationResolver) BuatBarang(ctx context.Context, input model.BarangBaru) (*model.Barang, error) {
-	barang := &model.Barang{
-		ID:        guuid.New().String(),
-		Nama:      input.Nama,
-		Harga:     input.Harga,
-		Stock:     input.Stock,
-		Vendor:    input.Vendor,
-		CreatedAt: utils.JamWaktu(),
-		UpdatedAt: utils.JamWaktu(),
-	}
 
-	err := controller.BuatBarangKeDb(barang)
 
-	if err != nil {
-		panic(err)
-	}
+  user, ok := auth.ForContext(ctx)
 
-	return barang, nil
+  if !ok {
+    return &model.Barang{}, fmt.Errorf("Kamu bukan siapa-siapa!")
+  } else {
+    if user.Role != "admin" || user.Role != "seller" {
+      return &model.Barang{}, fmt.Errorf("Kamu bukan admin / penjual!")
+    } else {
+      barang := &model.Barang{
+        ID:        guuid.New().String(),
+        Nama:      input.Nama,
+        Harga:     input.Harga,
+        Stock:     input.Stock,
+        Vendor:    input.Vendor,
+        CreatedAt: utils.JamWaktu(),
+        UpdatedAt: utils.JamWaktu(),
+      }
+
+      err := controller.BuatBarangKeDb(barang)
+
+      if err != nil {
+        panic(err)
+      }
+
+      return barang, nil
+    }
+  }
 }
 
 func (r *mutationResolver) EditBarang(ctx context.Context, id string, input model.BarangBaru) (*model.Barang, error) {
-	barang := &model.Barang{
-		Nama:      input.Nama,
-		Harga:     input.Harga,
-		Stock:     input.Stock,
-		Vendor:    input.Vendor,
-		UpdatedAt: utils.JamWaktu(),
-	}
+  user, ok := auth.ForContext(ctx)
 
-	data := controller.EditBarang(id, barang)
+  if !ok {
+    return &model.Barang{}, fmt.Errorf("Kamu bukan siapa-siapa!")
+  } else {
+    if user.Role != "admin" || user.Role != "seller" {
+      return &model.Barang{}, fmt.Errorf("Kamu bukan admin / penjual!")
+    } else {
+      barang := &model.Barang{
+        Nama:      input.Nama,
+        Harga:     input.Harga,
+        Stock:     input.Stock,
+        Vendor:    input.Vendor,
+        UpdatedAt: utils.JamWaktu(),
+      }
 
-	return data, nil
+      data , err:= controller.EditBarang(id, barang)
+
+      if err != nil {
+        return &model.Barang{}, fmt.Errorf("Barangnya ga ada brok..")
+      }
+
+      return data, nil
+
+    }
+  }
 }
 
 func (r *mutationResolver) HapusBarang(ctx context.Context, id string) (bool, error) {
-	data := controller.DeleteBarang(id)
+  user, ok := auth.ForContext(ctx)
 
-	return data, nil
+  if !ok {
+    return false, fmt.Errorf("Kamu bukan siapa-siapa!")
+  } else {
+    if user.Role != "admin" || user.Role != "seller" {
+      return false, fmt.Errorf("Kamu bukan admin / penjual!")
+    } else {
+      data := controller.DeleteBarang(id)
+
+      return data, nil
+
+    }
+  }
+
 }
 
 func (r *mutationResolver) BuatUser(ctx context.Context, input model.UserBaru) (*model.User, error) {

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/padulkemid/pingpos/graph/model"
@@ -46,7 +47,7 @@ func NyariBarangPakeId(id string) *model.Barang {
 	return barang
 }
 
-func EditBarang(id string, barang *model.Barang) *model.Barang {
+func EditBarang(id string, barang *model.Barang) (*model.Barang, error) {
 	barangLama := NyariBarangPakeId(id)
 
 	editedBarang := &model.Barang{
@@ -62,12 +63,12 @@ func EditBarang(id string, barang *model.Barang) *model.Barang {
 	err := dbConnect.Update(editedBarang)
 
 	if err != nil {
-		panic(err)
+    return &model.Barang{}, fmt.Errorf("Ga ada barangnya...")
 	}
 
 	log.Printf("Barang udah diapdet")
 
-	return editedBarang
+	return editedBarang, nil
 }
 
 func DeleteBarang(id string) bool {
