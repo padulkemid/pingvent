@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/padulkemid/pingpos/graph/model"
@@ -33,18 +34,18 @@ func NyariUserDiDb() []*model.User {
 	return user
 }
 
-func NyariUserPakeId(id string) *model.User {
+func NyariUserPakeId(id string) (*model.User, error) {
 	user := &model.User{ID: id}
 
 	err := dbConnect.Select(user)
 
 	if err != nil {
-		panic(err)
+    return &model.User{}, fmt.Errorf("User ga ada bos!")
 	}
 
 	log.Printf("Nih lu minta user dari ID: %s", id)
 
-	return user
+	return user, nil
 }
 
 func EditUser(id string, user *model.User) *model.User {
@@ -67,19 +68,19 @@ func EditUser(id string, user *model.User) *model.User {
 	return editedUser
 }
 
-func DeleteUser(id string) bool {
+func DeleteUser(id string) (bool, error) {
 
 	user := &model.User{ID: id}
 
 	err := dbConnect.Delete(user)
 
 	if err != nil {
-		panic(err)
+    return false, fmt.Errorf("Ga ada brok, cari yg laen")
 	}
 
 	log.Printf("User id :%s , udah diapus", id)
 
-	return true
+	return true, nil
 }
 
 // login
@@ -89,11 +90,8 @@ type LoginData struct {
 }
 
 func UsernameAdaGak(username string) (*LoginData, error)  {
-  user := &model.User{
-    Username: username,
-  }
-
-	err := dbConnect.Select(user)
+  var user model.User
+  err := dbConnect.Model(&user).Where("username=?", username).Select()
 
 	if err != nil {
     panic(err)

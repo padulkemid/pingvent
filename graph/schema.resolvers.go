@@ -5,8 +5,10 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	guuid "github.com/google/uuid"
+	"github.com/padulkemid/pingpos/auth"
 	controller "github.com/padulkemid/pingpos/controllers"
 	"github.com/padulkemid/pingpos/graph/generated"
 	"github.com/padulkemid/pingpos/graph/model"
@@ -87,9 +89,25 @@ func (r *mutationResolver) EditUser(ctx context.Context, id string, input model.
 }
 
 func (r *mutationResolver) HapusUser(ctx context.Context, id string) (bool, error) {
-	data := controller.DeleteUser(id)
+  user, ok := auth.ForContext(ctx)
 
-	return data, nil
+  if !ok {
+    return false, fmt.Errorf("Kamu bukan siapa-siapa!")
+  } else {
+    if user.Role != "admin" {
+      return false, fmt.Errorf("Kamu bukan admin!")
+    } else {
+      data, err := controller.DeleteUser(id)
+
+      if err != nil {
+        return false, err
+      }
+
+      return data, nil
+
+    }
+  }
+
 }
 
 func (r *mutationResolver) LoginUser(ctx context.Context, input model.LoginUser) (string, error) {
@@ -133,15 +151,40 @@ func (r *queryResolver) BarangPakeID(ctx context.Context, id string) (*model.Bar
 }
 
 func (r *queryResolver) SemuaUser(ctx context.Context) ([]*model.User, error) {
-	data := controller.NyariUserDiDb()
+  user, ok := auth.ForContext(ctx)
 
-	return data, nil
+  if !ok {
+    return []*model.User{}, fmt.Errorf("Kamu bukan siapa-siapa!")
+  } else {
+    if user.Role != "admin" {
+      return []*model.User{}, fmt.Errorf("Kamu bukan admin!")
+    } else {
+      data := controller.NyariUserDiDb()
+
+      return data, nil
+    }
+  }
+
 }
 
 func (r *queryResolver) UserPakeID(ctx context.Context, id string) (*model.User, error) {
-	data := controller.NyariUserPakeId(id)
+  user, ok := auth.ForContext(ctx)
 
-	return data, nil
+  if !ok {
+    return &model.User{}, fmt.Errorf("Kamu bukan siapa-siapa!")
+  } else {
+    if user.Role != "admin" {
+      return &model.User{}, fmt.Errorf("Kamu bukan admin!")
+    } else {
+      data, err := controller.NyariUserPakeId(id)
+      if err != nil {
+        return &model.User{}, err
+      }
+
+      return data, nil
+    }
+  }
+
 }
 
 // Mutation returns generated.MutationResolver implementation.

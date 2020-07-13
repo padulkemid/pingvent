@@ -1,37 +1,36 @@
 package auth
 
 import (
-  "context"
-  "net/http"
+	"context"
+	"net/http"
+	"strings"
 
-  controller "github.com/padulkemid/pingpos/controllers"
-  utils "github.com/padulkemid/pingpos/utils"
+	controller "github.com/padulkemid/pingpos/controllers"
+	utils "github.com/padulkemid/pingpos/utils"
 )
 
+var userCtxKey = &contextKey{"seller", "username"}
 type contextKey struct {
-	Role       string `json:"id,omitempty"`
-	Username string `json:"username,omitempty"`
+  Role string
+  Username string
 }
 
-var userCtxKey = &contextKey{
-  Role: "role",
-  Username: "username",
-}
 
 func Middleware() func(http.Handler) http.Handler {
   return func(next http.Handler) http.Handler {
     return http.HandlerFunc(
       func(w http.ResponseWriter, r *http.Request) {
-        c, err := r.Cookie("token")
+        reqToken := r.Header.Get("authorization")
 
         // Allow unauthenticated user first
-        if err != nil || c == nil {
+        if reqToken == "" {
           next.ServeHTTP(w, r)
           return
         }
 
         // Validate token
-        tokenString := c.Value
+        splitToken := strings.Split(reqToken, "Bearer ")
+        tokenString := splitToken[1]
         data, err := utils.ParseToken(tokenString)
 
         if err != nil {
@@ -40,14 +39,10 @@ func Middleware() func(http.Handler) http.Handler {
         }
 
         // check user
-        checkUname, err := controller.UsernameAdaGak(data.Username)
-        if err != nil {
-          next.ServeHTTP(w, r)
-          return
-        }
+        user, _ := controller.UsernameAdaGak(data.Username)
 
         // taro context
-        ctx := context.WithValue(r.Context(), userCtxKey, checkUname )
+        ctx := context.WithValue(r.Context(), userCtxKey, user )
 
         // context baru
         r = r.WithContext(ctx)
@@ -58,8 +53,8 @@ func Middleware() func(http.Handler) http.Handler {
 }
 
 // finds the user from context
-func ForContext(ctx context.Context) *controller.LoginData {
-  data, _ := ctx.Value(userCtxKey).(*controller.LoginData)
+func ForContext(ctx context.Context) (*controller.LoginData, bool){
+  data, ok := ctx.Value(userCtxKey).(*controller.LoginData)
 
-  return data
+  return data, ok
 }

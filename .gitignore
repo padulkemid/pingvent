@@ -19,3 +19,6 @@
 
 # Setup backup ( gqlgen always refresh things )
 gqlgen_schema.bak
+
+# Token collection ( for testing )
+token_collection.bak

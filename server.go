@@ -35,8 +35,8 @@ func main() {
 	newRouter := cors.New(routerOptions).Handler
 
 	// apply middleware
-	router.Use(newRouter)
   router.Use(auth.Middleware())
+	router.Use(newRouter)
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
 	websocketTransport := &transport.Websocket{
