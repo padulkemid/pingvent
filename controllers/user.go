@@ -84,7 +84,7 @@ func DeleteUser(id string) bool {
 
 // login
 type LoginData struct {
-	ID       string `json:"id"`
+	Role       string `json:"id"`
 	Username string `json:"username"`
 }
 
@@ -100,7 +100,7 @@ func UsernameAdaGak(username string) (*LoginData, error)  {
 	}
 
   data := &LoginData{
-    ID: user.ID,
+    Role: user.Role,
     Username: user.Username,
   }
 
@@ -117,7 +117,7 @@ func AuthUser(username, password string) (*LoginData, bool) {
 
   check := utils.CheckPassword(password, user.Password)
   data := &LoginData{
-    ID: user.ID,
+    Role: user.Role,
     Username: user.Username,
   }
 

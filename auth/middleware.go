@@ -9,12 +9,12 @@ import (
 )
 
 type contextKey struct {
-	ID       string `json:"id,omitempty"`
+	Role       string `json:"id,omitempty"`
 	Username string `json:"username,omitempty"`
 }
 
 var userCtxKey = &contextKey{
-  ID: "id",
+  Role: "role",
   Username: "username",
 }
 

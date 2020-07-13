@@ -38,7 +38,7 @@ func CheckPassword(pwd, dbPwd string) bool {
 // JWT
 
 type TokenData struct {
-	ID       string `json:"id"`
+	Role       string `json:"id"`
 	Username string `json:"username"`
 }
 
@@ -55,7 +55,7 @@ func getSecretKey() string {
   return JWT_SECRET
 }
 
-func GenerateToken(id, username string) (string, error){
+func GenerateToken(role, username string) (string, error){
   // get secret
   keyString := getSecretKey()
   key := []byte(keyString)
@@ -64,8 +64,8 @@ func GenerateToken(id, username string) (string, error){
   claims := token.Claims.(jwt.MapClaims)
 
   // set claims
-  claims["id"] = id
   claims["username"] = username
+  claims["role"] = role
   claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 
   // sign
@@ -92,10 +92,10 @@ func ParseToken(tokenString string)(*TokenData, error) {
 
   if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
     username := claims["username"].(string)
-    id := claims["id"].(string)
+    role := claims["role"].(string)
 
     data := &TokenData{
-      ID: id,
+      Role: role,
       Username: username,
     }
 

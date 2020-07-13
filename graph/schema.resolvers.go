@@ -98,7 +98,7 @@ func (r *mutationResolver) LoginUser(ctx context.Context, input model.LoginUser)
     panic(check)
   }
 
-  token, err := utils.GenerateToken(data.ID, data.Username)
+  token, err := utils.GenerateToken(data.Role, data.Username)
   if err != nil {
     panic(err)
   }
@@ -112,7 +112,7 @@ func (r *mutationResolver) RefreshToken(ctx context.Context, input model.Refresh
     panic(err)
   }
 
-  token, err := utils.GenerateToken(data.ID, data.Username)
+  token, err := utils.GenerateToken(data.Role, data.Username)
   if err != nil {
     panic(err)
   }
