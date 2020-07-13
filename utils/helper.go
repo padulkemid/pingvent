@@ -84,8 +84,10 @@ func ParseToken(tokenString string)(*TokenData, error) {
   key := []byte(keyString)
 
   // parse
-  token, err := jwt.Parse(tokenString, func(token *jwt.Token)(interface{}, error) {
-    return key, nil
+  token, err := jwt.Parse(
+    tokenString,
+    func(token *jwt.Token)(interface{}, error) {
+      return key, nil
   })
 
   if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
