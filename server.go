@@ -13,6 +13,7 @@ import (
 	"github.com/padulkemid/pingpos/config"
 	"github.com/padulkemid/pingpos/graph"
 	"github.com/padulkemid/pingpos/graph/generated"
+  "github.com/padulkemid/pingpos/auth"
 	"github.com/rs/cors"
 )
 
@@ -35,6 +36,7 @@ func main() {
 
 	// apply middleware
 	router.Use(newRouter)
+  router.Use(auth.Middleware())
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
 	websocketTransport := &transport.Websocket{

@@ -92,6 +92,34 @@ func (r *mutationResolver) HapusUser(ctx context.Context, id string) (bool, erro
 	return data, nil
 }
 
+func (r *mutationResolver) LoginUser(ctx context.Context, input model.LoginUser) (string, error) {
+  data, check := controller.AuthUser(input.Username, input.Password)
+  if !check {
+    panic(check)
+  }
+
+  token, err := utils.GenerateToken(data.ID, data.Username)
+  if err != nil {
+    panic(err)
+  }
+
+  return token, nil
+}
+
+func (r *mutationResolver) RefreshToken(ctx context.Context, input model.RefreshTokenData) (string, error) {
+  data, err := utils.ParseToken(input.Token)
+  if err != nil {
+    panic(err)
+  }
+
+  token, err := utils.GenerateToken(data.ID, data.Username)
+  if err != nil {
+    panic(err)
+  }
+
+  return token, nil
+}
+
 func (r *queryResolver) SemuaBarang(ctx context.Context) ([]*model.Barang, error) {
 	data := controller.NyariBarangDiDb()
 

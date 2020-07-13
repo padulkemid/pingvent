@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/padulkemid/pingpos/graph/model"
+	utils "github.com/padulkemid/pingpos/utils"
 )
 
 // User
@@ -79,4 +80,46 @@ func DeleteUser(id string) bool {
 	log.Printf("User id :%s , udah diapus", id)
 
 	return true
+}
+
+// login
+type LoginData struct {
+	ID       string `json:"id"`
+	Username string `json:"username"`
+}
+
+func UsernameAdaGak(username string) (*LoginData, error)  {
+  user := &model.User{
+    Username: username,
+  }
+
+	err := dbConnect.Select(user)
+
+	if err != nil {
+    panic(err)
+	}
+
+  data := &LoginData{
+    ID: user.ID,
+    Username: user.Username,
+  }
+
+	return data, nil
+}
+
+func AuthUser(username, password string) (*LoginData, bool) {
+  var user model.User
+  err := dbConnect.Model(&user).Where("username=?", username).Select()
+
+	if err != nil {
+    panic(err)
+	}
+
+  check := utils.CheckPassword(password, user.Password)
+  data := &LoginData{
+    ID: user.ID,
+    Username: user.Username,
+  }
+
+  return data, check
 }

@@ -3,8 +3,8 @@
 package model
 
 type Barang struct {
-	ID        string  `sql:"type:uuid" json:"id"`
-	Nama      string  `sql:",unique" json:"nama"`
+  ID        string  `sql:"type:uuid" json:"id"`
+  Nama      string  `sql:",unique" json:"nama"`
 	Harga     float64 `json:"harga"`
 	Stock     int     `json:"stock"`
 	Vendor    string  `json:"vendor"`
@@ -19,9 +19,18 @@ type BarangBaru struct {
 	Vendor string  `json:"vendor"`
 }
 
+type LoginUser struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type RefreshTokenData struct {
+	Token string `json:"token"`
+}
+
 type User struct {
-	ID       string `sql:"type:uuid" json:"id"`
-	Username string `sql:",unique" json:"username"`
+  ID       string `sql:"type:uuid" json:"id"`
+  Username string `sql:",unique" json:"username"`
 	Password string `json:"password"`
 	Role     string `json:"role"`
 }
