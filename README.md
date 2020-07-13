@@ -6,10 +6,11 @@ Your most affordable POS system. 😎
 
   - `go-pg` for postgres connection.
   - `gqlgen` for graphql things.
-  - `chi` for adding cors and muxing functions ( especially cors ).
+  - `chi` for adding middlewares to routers.
   - `godotenv` for those envar things.
   - `gorilla/websocket` for websocket transport middleware.
   - `bcrypt` hash all the things.
+  - `jwt` for creating user auth tokens.
 
 # Contributing 👉🏻👈🏻
 
