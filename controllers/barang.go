@@ -33,22 +33,26 @@ func NyariBarangDiDb() []*model.Barang {
 	return barang
 }
 
-func NyariBarangPakeId(id string) *model.Barang {
+func NyariBarangPakeId(id string) (*model.Barang, error) {
 	barang := &model.Barang{ID: id}
 
 	err := dbConnect.Select(barang)
 
 	if err != nil {
-		panic(err)
+    return &model.Barang{}, fmt.Errorf("Barang ga ada coy")
 	}
 
 	log.Printf("Nih lu minta barang dari ID: %s", id)
 
-	return barang
+	return barang, nil
 }
 
 func EditBarang(id string, barang *model.Barang) (*model.Barang, error) {
-	barangLama := NyariBarangPakeId(id)
+	barangLama, barangErr := NyariBarangPakeId(id)
+
+  if barangErr != nil {
+    return &model.Barang{}, barangErr
+  }
 
 	editedBarang := &model.Barang{
 		ID:        id,
@@ -77,7 +81,7 @@ func DeleteBarang(id string) bool {
 	err := dbConnect.Delete(barang)
 
 	if err != nil {
-		panic(err)
+    return false
 	}
 
 	log.Printf("Barang udah diapus")

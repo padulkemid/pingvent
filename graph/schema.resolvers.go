@@ -85,6 +85,10 @@ func (r *mutationResolver) HapusBarang(ctx context.Context, id string) (bool, er
 		} else {
 			data := controller.DeleteBarang(id)
 
+      if !data {
+        return false, fmt.Errorf("Id na eweuh")
+      }
+
 			return data, nil
 
 		}
@@ -192,7 +196,11 @@ func (r *queryResolver) SemuaBarang(ctx context.Context) ([]*model.Barang, error
 }
 
 func (r *queryResolver) BarangPakeID(ctx context.Context, id string) (*model.Barang, error) {
-	data := controller.NyariBarangPakeId(id)
+	data, err := controller.NyariBarangPakeId(id)
+
+  if err != nil {
+    return &model.Barang{}, err
+  }
 
 	return data, nil
 }
