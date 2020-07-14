@@ -48,24 +48,36 @@ func NyariUserPakeId(id string) (*model.User, error) {
 	return user, nil
 }
 
-func EditUser(id string, user *model.User) *model.User {
+func EditUser(id string, newUser *model.EditUser) (*model.User, error) {
+  oldUser, err := NyariUserPakeId(id)
+  if err != nil {
+    return &model.User{}, err
+  }
 
-	editedUser := &model.User{
-		ID:       id,
-		Username: user.Username,
-		Password: user.Password,
-		Role:     user.Role,
-	}
+  checked := utils.CheckPassword(newUser.PasswordLama, oldUser.Password)
 
-	err := dbConnect.Update(editedUser)
+  if !checked {
+    return &model.User{}, fmt.Errorf("Password lama salah brok!")
+  }
 
-	if err != nil {
-		panic(err)
+  hashed, _ := utils.HashPassword(newUser.PasswordBaru)
+
+  editedUser := &model.User{
+    ID:       id,
+    Username: newUser.Username,
+    Password: hashed,
+    Role:     oldUser.Role,
+  }
+
+	findErr := dbConnect.Update(editedUser)
+
+	if findErr != nil {
+    return &model.User{}, fmt.Errorf("User ga ada boy!")
 	}
 
 	log.Printf("User udah diedit")
 
-	return editedUser
+	return editedUser, nil
 }
 
 func DeleteUser(id string) (bool, error) {

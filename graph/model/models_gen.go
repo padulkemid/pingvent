@@ -19,6 +19,12 @@ type BarangBaru struct {
 	Vendor string  `json:"vendor"`
 }
 
+type EditUser struct {
+	Username     string `json:"username"`
+	PasswordLama string `json:"passwordLama"`
+	PasswordBaru string `json:"passwordBaru"`
+}
+
 type LoginUser struct {
 	Username string `json:"username"`
 	Password string `json:"password"`

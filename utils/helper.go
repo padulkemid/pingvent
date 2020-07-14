@@ -29,7 +29,7 @@ func CheckPassword(pwd, dbPwd string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(dbPwd), []byte(pwd))
 
 	if err != nil {
-		panic(err)
+    return false
 	}
 
 	return true

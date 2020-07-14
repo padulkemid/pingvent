@@ -41,6 +41,12 @@ input UserBaru {
   role: String!
 }
 
+input EditUser {
+  username: String!
+  passwordLama: String!
+  passwordBaru: String!
+}
+
 input LoginUser {
   username: String!
   password: String!
@@ -55,7 +61,7 @@ type Mutation {
   editBarang(id: ID!, input: BarangBaru!): Barang!
   hapusBarang(id: ID!): Boolean!
   buatUser(input: UserBaru!): User!
-  editUser(id: ID!, input: UserBaru!): User!
+  editUser(id: ID!, input: EditUser!): User!
   hapusUser(id: ID!): Boolean!
 
   # Login

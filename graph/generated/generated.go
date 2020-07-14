@@ -57,7 +57,7 @@ type ComplexityRoot struct {
 		BuatBarang   func(childComplexity int, input model.BarangBaru) int
 		BuatUser     func(childComplexity int, input model.UserBaru) int
 		EditBarang   func(childComplexity int, id string, input model.BarangBaru) int
-		EditUser     func(childComplexity int, id string, input model.UserBaru) int
+		EditUser     func(childComplexity int, id string, input model.EditUser) int
 		HapusBarang  func(childComplexity int, id string) int
 		HapusUser    func(childComplexity int, id string) int
 		LoginUser    func(childComplexity int, input model.LoginUser) int
@@ -84,7 +84,7 @@ type MutationResolver interface {
 	EditBarang(ctx context.Context, id string, input model.BarangBaru) (*model.Barang, error)
 	HapusBarang(ctx context.Context, id string) (bool, error)
 	BuatUser(ctx context.Context, input model.UserBaru) (*model.User, error)
-	EditUser(ctx context.Context, id string, input model.UserBaru) (*model.User, error)
+	EditUser(ctx context.Context, id string, input model.EditUser) (*model.User, error)
 	HapusUser(ctx context.Context, id string) (bool, error)
 	LoginUser(ctx context.Context, input model.LoginUser) (string, error)
 	RefreshToken(ctx context.Context, input model.RefreshTokenData) (string, error)
@@ -206,7 +206,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.EditUser(childComplexity, args["id"].(string), args["input"].(model.UserBaru)), true
+		return e.complexity.Mutation.EditUser(childComplexity, args["id"].(string), args["input"].(model.EditUser)), true
 
 	case "Mutation.hapusBarang":
 		if e.complexity.Mutation.HapusBarang == nil {
@@ -429,6 +429,12 @@ input UserBaru {
   role: String!
 }
 
+input EditUser {
+  username: String!
+  passwordLama: String!
+  passwordBaru: String!
+}
+
 input LoginUser {
   username: String!
   password: String!
@@ -443,7 +449,7 @@ type Mutation {
   editBarang(id: ID!, input: BarangBaru!): Barang!
   hapusBarang(id: ID!): Boolean!
   buatUser(input: UserBaru!): User!
-  editUser(id: ID!, input: UserBaru!): User!
+  editUser(id: ID!, input: EditUser!): User!
   hapusUser(id: ID!): Boolean!
 
   # Login
@@ -521,9 +527,9 @@ func (ec *executionContext) field_Mutation_editUser_args(ctx context.Context, ra
 		}
 	}
 	args["id"] = arg0
-	var arg1 model.UserBaru
+	var arg1 model.EditUser
 	if tmp, ok := rawArgs["input"]; ok {
-		arg1, err = ec.unmarshalNUserBaru2githubᚗcomᚋpadulkemidᚋpingposᚋgraphᚋmodelᚐUserBaru(ctx, tmp)
+		arg1, err = ec.unmarshalNEditUser2githubᚗcomᚋpadulkemidᚋpingposᚋgraphᚋmodelᚐEditUser(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1092,7 +1098,7 @@ func (ec *executionContext) _Mutation_editUser(ctx context.Context, field graphq
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().EditUser(rctx, args["id"].(string), args["input"].(model.UserBaru))
+		return ec.resolvers.Mutation().EditUser(rctx, args["id"].(string), args["input"].(model.EditUser))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2678,6 +2684,36 @@ func (ec *executionContext) unmarshalInputBarangBaru(ctx context.Context, obj in
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputEditUser(ctx context.Context, obj interface{}) (model.EditUser, error) {
+	var it model.EditUser
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "username":
+			var err error
+			it.Username, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "passwordLama":
+			var err error
+			it.PasswordLama, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "passwordBaru":
+			var err error
+			it.PasswordBaru, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputLoginUser(ctx context.Context, obj interface{}) (model.LoginUser, error) {
 	var it model.LoginUser
 	var asMap = obj.(map[string]interface{})
@@ -3321,6 +3357,10 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNEditUser2githubᚗcomᚋpadulkemidᚋpingposᚋgraphᚋmodelᚐEditUser(ctx context.Context, v interface{}) (model.EditUser, error) {
+	return ec.unmarshalInputEditUser(ctx, v)
 }
 
 func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v interface{}) (float64, error) {

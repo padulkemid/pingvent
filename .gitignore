@@ -22,3 +22,6 @@ gqlgen_schema.bak
 
 # Token collection ( for testing )
 token_collection.bak
+
+# Air tmp folder
+tmp/
