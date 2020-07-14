@@ -12,7 +12,7 @@ func BuatBarangKeDb(barang *model.Barang) error {
 	err := dbConnect.Insert(barang)
 
 	if err != nil {
-		panic(err)
+    return fmt.Errorf("Barang sudah ada boi, ganti la")
 	}
 
 	log.Printf("Barang dah masuk boi!")

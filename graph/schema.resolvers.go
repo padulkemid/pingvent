@@ -37,7 +37,7 @@ func (r *mutationResolver) BuatBarang(ctx context.Context, input model.BarangBar
 			err := controller.BuatBarangKeDb(barang)
 
 			if err != nil {
-				panic(err)
+        return &model.Barang{}, err
 			}
 
 			return barang, nil
