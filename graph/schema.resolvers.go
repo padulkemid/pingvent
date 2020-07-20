@@ -37,7 +37,7 @@ func (r *mutationResolver) BuatBarang(ctx context.Context, input model.BarangBar
 			err := controller.BuatBarangKeDb(barang)
 
 			if err != nil {
-        return &model.Barang{}, err
+				return &model.Barang{}, err
 			}
 
 			return barang, nil
@@ -85,9 +85,9 @@ func (r *mutationResolver) HapusBarang(ctx context.Context, id string) (bool, er
 		} else {
 			data := controller.DeleteBarang(id)
 
-      if !data {
-        return false, fmt.Errorf("Id na eweuh")
-      }
+			if !data {
+				return false, fmt.Errorf("Id na eweuh")
+			}
 
 			return data, nil
 
@@ -99,16 +99,24 @@ func (r *mutationResolver) BuatUser(ctx context.Context, input model.UserBaru) (
 	hashed, _ := utils.HashPassword(input.Password)
 
 	user := &model.User{
-		ID:       guuid.New().String(),
-		Username: input.Username,
-		Password: hashed,
-		Role:     input.Role,
+		ID:          guuid.New().String(),
+		Username:    input.Username,
+		Password:    hashed,
+		Nama:        input.Nama,
+		Role:        input.Role,
+		Phone:       input.Phone,
+		Email:       input.Email,
+		Address:     input.Address,
+		Latlng:      input.Latlng,
+		CreatedAt:   utils.JamWaktu(),
+		UpdatedAt:   utils.JamWaktu(),
+		LastLoginAt: utils.JamWaktu(),
 	}
 
 	err := controller.BuatUserKeDb(user)
 
 	if err != nil {
-		panic(err)
+		return &model.User{}, fmt.Errorf("udah ada boi!")
 	}
 
 	return user, nil
@@ -123,19 +131,47 @@ func (r *mutationResolver) EditUser(ctx context.Context, id string, input model.
 		if user.Role == "seller" {
 			return &model.User{}, fmt.Errorf("Kamu bukan admin / user!")
 		} else {
-      editedUser := model.EditUser{
-        Username: input.Username,
-        PasswordLama: input.PasswordLama,
-        PasswordBaru: input.PasswordBaru,
-      }
+			editedUser := model.EditUser{
+				Username: input.Username,
+				Nama:     input.Nama,
+				Phone:    input.Phone,
+				Email:    input.Email,
+				Address:  input.Address,
+				Latlng:   input.Latlng,
+			}
 
-      data, err := controller.EditUser(id, &editedUser)
+			data, err := controller.EditUser(id, &editedUser)
 
-      if err != nil {
-        return &model.User{}, err
-      }
+			if err != nil {
+				return &model.User{}, err
+			}
 
-      return data, nil
+			return data, nil
+		}
+	}
+}
+
+func (r *mutationResolver) EditUserPassword(ctx context.Context, id string, input model.EditUserPassword) (bool, error) {
+	user, ok := auth.ForContext(ctx)
+
+	if !ok {
+		return false, fmt.Errorf("Kamu bukan siapa-siapa!")
+	} else {
+		if user.Role == "seller" {
+			return false, fmt.Errorf("Kamu bukan admin / user!")
+		} else {
+			editedPass := model.EditUserPassword{
+				PasswordBaru: input.PasswordBaru,
+				PasswordLama: input.PasswordLama,
+			}
+
+			data, err := controller.EditUserPassword(id, &editedPass)
+
+			if err != nil {
+				return false, err
+			}
+
+			return data, nil
 		}
 	}
 }
@@ -164,7 +200,7 @@ func (r *mutationResolver) HapusUser(ctx context.Context, id string) (bool, erro
 func (r *mutationResolver) LoginUser(ctx context.Context, input model.LoginUser) (string, error) {
 	data, check := controller.AuthUser(input.Username, input.Password)
 	if !check {
-		panic(check)
+		return "", fmt.Errorf("username atw password salah boi")
 	}
 
 	token, err := utils.GenerateToken(data.Role, data.Username)
@@ -198,9 +234,9 @@ func (r *queryResolver) SemuaBarang(ctx context.Context) ([]*model.Barang, error
 func (r *queryResolver) BarangPakeID(ctx context.Context, id string) (*model.Barang, error) {
 	data, err := controller.NyariBarangPakeId(id)
 
-  if err != nil {
-    return &model.Barang{}, err
-  }
+	if err != nil {
+		return &model.Barang{}, err
+	}
 
 	return data, nil
 }

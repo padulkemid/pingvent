@@ -40,7 +40,7 @@ func NyariUserPakeId(id string) (*model.User, error) {
 	err := dbConnect.Select(user)
 
 	if err != nil {
-    return &model.User{}, fmt.Errorf("User ga ada bos!")
+		return &model.User{}, fmt.Errorf("User ga ada bos!")
 	}
 
 	log.Printf("Nih lu minta user dari ID: %s", id)
@@ -49,35 +49,67 @@ func NyariUserPakeId(id string) (*model.User, error) {
 }
 
 func EditUser(id string, newUser *model.EditUser) (*model.User, error) {
-  oldUser, err := NyariUserPakeId(id)
-  if err != nil {
-    return &model.User{}, err
-  }
+	oldUser, err := NyariUserPakeId(id)
+	if err != nil {
+		return &model.User{}, err
+	}
 
-  checked := utils.CheckPassword(newUser.PasswordLama, oldUser.Password)
-
-  if !checked {
-    return &model.User{}, fmt.Errorf("Password lama salah brok!")
-  }
-
-  hashed, _ := utils.HashPassword(newUser.PasswordBaru)
-
-  editedUser := &model.User{
-    ID:       id,
-    Username: newUser.Username,
-    Password: hashed,
-    Role:     oldUser.Role,
-  }
+	editedUser := &model.User{
+		ID:          id,
+		Username:    newUser.Username,
+		Nama:        newUser.Nama,
+		Password:    oldUser.Password,
+		Role:        oldUser.Role,
+		Email:       newUser.Email,
+		Phone:       newUser.Phone,
+		Address:     newUser.Address,
+		Latlng:      newUser.Latlng,
+		CreatedAt:   oldUser.CreatedAt,
+		UpdatedAt:   utils.JamWaktu(),
+		LastLoginAt: oldUser.LastLoginAt,
+	}
 
 	findErr := dbConnect.Update(editedUser)
 
 	if findErr != nil {
-    return &model.User{}, fmt.Errorf("User ga ada boy!")
+		return &model.User{}, fmt.Errorf("User ga ada boy!")
 	}
 
 	log.Printf("User udah diedit")
 
 	return editedUser, nil
+}
+
+func EditUserPassword(id string, newPass *model.EditUserPassword) (bool, error) {
+	oldData, err := NyariUserPakeId(id)
+
+	if err != nil {
+		return false, err
+	}
+
+	checked := utils.CheckPassword(newPass.PasswordLama, oldData.Password)
+
+	if !checked {
+		return false, fmt.Errorf("Password lama salah!")
+	}
+
+	hashed, _ := utils.HashPassword(newPass.PasswordBaru)
+
+	var user model.User
+
+	_, afterEditErr := dbConnect.Model(&user).
+		Set("password=?", hashed).
+		Set("updated_at=?", utils.JamWaktu()).
+		Where("id=?", id).
+		Update()
+
+	if afterEditErr != nil {
+		return false, fmt.Errorf("Update gagal boi!")
+	}
+
+	log.Printf("User password sudah di update!")
+
+	return true, nil
 }
 
 func DeleteUser(id string) (bool, error) {
@@ -87,7 +119,7 @@ func DeleteUser(id string) (bool, error) {
 	err := dbConnect.Delete(user)
 
 	if err != nil {
-    return false, fmt.Errorf("Ga ada brok, cari yg laen")
+		return false, fmt.Errorf("Ga ada brok, cari yg laen")
 	}
 
 	log.Printf("User id :%s , udah diapus", id)
@@ -97,39 +129,49 @@ func DeleteUser(id string) (bool, error) {
 
 // login
 type LoginData struct {
-	Role       string `json:"id"`
+	Role     string `json:"id"`
 	Username string `json:"username"`
 }
 
-func UsernameAdaGak(username string) (*LoginData, error)  {
-  var user model.User
-  err := dbConnect.Model(&user).Where("username=?", username).Select()
+func UsernameAdaGak(username string) (*LoginData, error) {
+	var user model.User
+	err := dbConnect.Model(&user).Where("username=?", username).Select()
 
 	if err != nil {
-    panic(err)
+		panic(err)
 	}
 
-  data := &LoginData{
-    Role: user.Role,
-    Username: user.Username,
-  }
+	data := &LoginData{
+		Role:     user.Role,
+		Username: user.Username,
+	}
 
 	return data, nil
 }
 
 func AuthUser(username, password string) (*LoginData, bool) {
-  var user model.User
-  err := dbConnect.Model(&user).Where("username=?", username).Select()
+	var user model.User
+	err := dbConnect.Model(&user).Where("username=?", username).Select()
 
 	if err != nil {
-    panic(err)
+		panic(err)
 	}
 
-  check := utils.CheckPassword(password, user.Password)
-  data := &LoginData{
-    Role: user.Role,
-    Username: user.Username,
-  }
+	check := utils.CheckPassword(password, user.Password)
 
-  return data, check
+	_, updateErr := dbConnect.Model(&user).
+		Set("last_login_at=?", utils.JamWaktu()).
+		Where("id=?", user.ID).
+		Update()
+
+	if updateErr != nil {
+		panic(err)
+	}
+
+	data := &LoginData{
+		Role:     user.Role,
+		Username: user.Username,
+	}
+
+	return data, check
 }

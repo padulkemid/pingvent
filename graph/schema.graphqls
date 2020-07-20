@@ -16,8 +16,16 @@ type Barang {
 type User {
   id: ID!
   username: String!
+  nama: String!
   password: String!
   role: String!
+  email: String!
+  phone: String!
+  address: String!
+  latlng: String!
+  createdAt: String!
+  updatedAt: String!
+  lastLoginAt: String!
 }
 
 type Query {
@@ -37,14 +45,29 @@ input BarangBaru {
 
 input UserBaru {
   username: String!
+  nama: String!
   password: String!
+  phone: String!
   role: String!
+  email: String!
+  address: String!
+  latlng: String!
 }
 
 input EditUser {
   username: String!
+  nama: String!
+  phone: String!
+  email: String!
+  address: String!
+  latlng: String!
+}
+
+
+input EditUserPassword {
   passwordLama: String!
   passwordBaru: String!
+  
 }
 
 input LoginUser {
@@ -62,6 +85,7 @@ type Mutation {
   hapusBarang(id: ID!): Boolean!
   buatUser(input: UserBaru!): User!
   editUser(id: ID!, input: EditUser!): User!
+  editUserPassword(id: ID!, input: EditUserPassword!): Boolean!
   hapusUser(id: ID!): Boolean!
 
   # Login

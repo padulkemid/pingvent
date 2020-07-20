@@ -20,7 +20,15 @@ type BarangBaru struct {
 }
 
 type EditUser struct {
-	Username     string `json:"username"`
+	Username string `json:"username"`
+	Nama     string `json:"nama"`
+	Phone    string `json:"phone"`
+	Email    string `json:"email"`
+	Address  string `json:"address"`
+	Latlng   string `json:"latlng"`
+}
+
+type EditUserPassword struct {
 	PasswordLama string `json:"passwordLama"`
 	PasswordBaru string `json:"passwordBaru"`
 }
@@ -35,14 +43,27 @@ type RefreshTokenData struct {
 }
 
 type User struct {
-  ID       string `sql:"type:uuid" json:"id"`
-  Username string `sql:",unique" json:"username"`
-	Password string `json:"password"`
-	Role     string `json:"role"`
+  ID          string `sql:"type:uuid" json:"id"`
+  Username    string `sql:",unique" json:"username"`
+	Nama        string `json:"nama"`
+	Password    string `json:"password"`
+	Role        string `json:"role"`
+	Email       string `json:"email"`
+	Phone       string `json:"phone"`
+	Address     string `json:"address"`
+	Latlng      string `json:"latlng"`
+	CreatedAt   string `json:"createdAt"`
+	UpdatedAt   string `json:"updatedAt"`
+	LastLoginAt string `json:"lastLoginAt"`
 }
 
 type UserBaru struct {
 	Username string `json:"username"`
+	Nama     string `json:"nama"`
 	Password string `json:"password"`
+	Phone    string `json:"phone"`
 	Role     string `json:"role"`
+	Email    string `json:"email"`
+	Address  string `json:"address"`
+	Latlng   string `json:"latlng"`
 }
