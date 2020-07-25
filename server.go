@@ -10,10 +10,10 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi"
 	"github.com/gorilla/websocket"
+	"github.com/padulkemid/pingpos/auth"
 	"github.com/padulkemid/pingpos/config"
 	"github.com/padulkemid/pingpos/graph"
 	"github.com/padulkemid/pingpos/graph/generated"
-  "github.com/padulkemid/pingpos/auth"
 	"github.com/rs/cors"
 )
 
@@ -28,14 +28,17 @@ func main() {
 
 	router := chi.NewRouter()
 	routerOptions := cors.Options{
-		AllowedOrigins:   []string{"http://localhost:" + port},
+		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
+		AllowedOrigins:   []string{"http://localhost:8000"},
 		AllowCredentials: true,
+		AllowedHeaders:   []string{"Origin", "Accept", "Content-Type", "X-Requested-With", "Authorization"},
+		Debug:            true,
 	}
 
 	newRouter := cors.New(routerOptions).Handler
 
 	// apply middleware
-  router.Use(auth.Middleware())
+	router.Use(auth.Middleware())
 	router.Use(newRouter)
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
@@ -43,6 +46,7 @@ func main() {
 		Upgrader: websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool {
 				// add domains here
+				// field for tommorrow
 				return r.Host == "herokuapp.com"
 			},
 			ReadBufferSize:  1024,
