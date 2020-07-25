@@ -30,8 +30,8 @@ func main() {
 	routerOptions := cors.Options{
 		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
 		AllowedOrigins:   []string{"http://localhost:8000"},
-		AllowCredentials: true,
 		AllowedHeaders:   []string{"Origin", "Accept", "Content-Type", "X-Requested-With", "Authorization"},
+		AllowCredentials: true,
 		Debug:            true,
 	}
 

@@ -66,10 +66,16 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		BarangPakeID func(childComplexity int, id string) int
-		SemuaBarang  func(childComplexity int) int
-		SemuaUser    func(childComplexity int) int
-		UserPakeID   func(childComplexity int, id string) int
+		BarangPakeID   func(childComplexity int, id string) int
+		ParseTokenData func(childComplexity int) int
+		SemuaBarang    func(childComplexity int) int
+		SemuaUser      func(childComplexity int) int
+		UserPakeID     func(childComplexity int, id string) int
+	}
+
+	TokenData struct {
+		Role     func(childComplexity int) int
+		Username func(childComplexity int) int
 	}
 
 	User struct {
@@ -104,6 +110,7 @@ type QueryResolver interface {
 	BarangPakeID(ctx context.Context, id string) (*model.Barang, error)
 	SemuaUser(ctx context.Context) ([]*model.User, error)
 	UserPakeID(ctx context.Context, id string) (*model.User, error)
+	ParseTokenData(ctx context.Context) (*model.TokenData, error)
 }
 
 type executableSchema struct {
@@ -290,6 +297,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.BarangPakeID(childComplexity, args["id"].(string)), true
 
+	case "Query.parseTokenData":
+		if e.complexity.Query.ParseTokenData == nil {
+			break
+		}
+
+		return e.complexity.Query.ParseTokenData(childComplexity), true
+
 	case "Query.semuaBarang":
 		if e.complexity.Query.SemuaBarang == nil {
 			break
@@ -315,6 +329,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.UserPakeID(childComplexity, args["id"].(string)), true
+
+	case "TokenData.role":
+		if e.complexity.TokenData.Role == nil {
+			break
+		}
+
+		return e.complexity.TokenData.Role(childComplexity), true
+
+	case "TokenData.username":
+		if e.complexity.TokenData.Username == nil {
+			break
+		}
+
+		return e.complexity.TokenData.Username(childComplexity), true
 
 	case "User.address":
 		if e.complexity.User.Address == nil {
@@ -494,11 +522,17 @@ type User {
   lastLoginAt: String!
 }
 
+type TokenData {
+  role: String!
+  username: String!
+}
+
 type Query {
   semuaBarang: [Barang!]!
   barangPakeId(id: ID!): Barang!
   semuaUser: [User!]!
   userPakeId(id: ID!): User!
+  parseTokenData: TokenData!
 }
 
 # Mutations and Input
@@ -1553,6 +1587,40 @@ func (ec *executionContext) _Query_userPakeId(ctx context.Context, field graphql
 	return ec.marshalNUser2ᚖgithubᚗcomᚋpadulkemidᚋpingposᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_parseTokenData(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().ParseTokenData(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.TokenData)
+	fc.Result = res
+	return ec.marshalNTokenData2ᚖgithubᚗcomᚋpadulkemidᚋpingposᚋgraphᚋmodelᚐTokenData(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1620,6 +1688,74 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 	res := resTmp.(*introspection.Schema)
 	fc.Result = res
 	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _TokenData_role(ctx context.Context, field graphql.CollectedField, obj *model.TokenData) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "TokenData",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Role, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _TokenData_username(ctx context.Context, field graphql.CollectedField, obj *model.TokenData) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "TokenData",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Username, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
@@ -3502,10 +3638,56 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "parseTokenData":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_parseTokenData(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "__type":
 			out.Values[i] = ec._Query___type(ctx, field)
 		case "__schema":
 			out.Values[i] = ec._Query___schema(ctx, field)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var tokenDataImplementors = []string{"TokenData"}
+
+func (ec *executionContext) _TokenData(ctx context.Context, sel ast.SelectionSet, obj *model.TokenData) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, tokenDataImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TokenData")
+		case "role":
+			out.Values[i] = ec._TokenData_role(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "username":
+			out.Values[i] = ec._TokenData_username(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3983,6 +4165,20 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNTokenData2githubᚗcomᚋpadulkemidᚋpingposᚋgraphᚋmodelᚐTokenData(ctx context.Context, sel ast.SelectionSet, v model.TokenData) graphql.Marshaler {
+	return ec._TokenData(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTokenData2ᚖgithubᚗcomᚋpadulkemidᚋpingposᚋgraphᚋmodelᚐTokenData(ctx context.Context, sel ast.SelectionSet, v *model.TokenData) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._TokenData(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNUser2githubᚗcomᚋpadulkemidᚋpingposᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {

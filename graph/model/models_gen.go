@@ -42,14 +42,19 @@ type RefreshTokenData struct {
 	Token string `json:"token"`
 }
 
+type TokenData struct {
+	Role     string `json:"role"`
+	Username string `json:"username"`
+}
+
 type User struct {
   ID          string `sql:"type:uuid" json:"id"`
   Username    string `sql:",unique" json:"username"`
 	Nama        string `json:"nama"`
 	Password    string `json:"password"`
 	Role        string `json:"role"`
-	Email       string `json:"email"`
-	Phone       string `json:"phone"`
+  Email       string `sql:",unique" json:"email"`
+  Phone       string `sql:",unique" json:"phone"`
 	Address     string `json:"address"`
 	Latlng      string `json:"latlng"`
 	CreatedAt   string `json:"createdAt"`

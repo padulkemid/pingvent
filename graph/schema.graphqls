@@ -28,11 +28,17 @@ type User {
   lastLoginAt: String!
 }
 
+type TokenData {
+  role: String!
+  username: String!
+}
+
 type Query {
   semuaBarang: [Barang!]!
   barangPakeId(id: ID!): Barang!
   semuaUser: [User!]!
   userPakeId(id: ID!): User!
+  parseTokenData: TokenData!
 }
 
 # Mutations and Input

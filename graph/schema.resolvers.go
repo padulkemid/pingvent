@@ -276,6 +276,21 @@ func (r *queryResolver) UserPakeID(ctx context.Context, id string) (*model.User,
 	}
 }
 
+func (r *queryResolver) ParseTokenData(ctx context.Context) (*model.TokenData, error) {
+  user, ok := auth.ForContext(ctx)
+
+  if !ok {
+    return &model.TokenData{}, fmt.Errorf("Kamu siapa woy!")
+  }
+
+  data := &model.TokenData{
+    Role: user.Role,
+    Username: user.Username,
+  }
+
+  return data, nil
+}
+
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
