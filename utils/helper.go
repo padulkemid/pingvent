@@ -29,7 +29,7 @@ func CheckPassword(pwd, dbPwd string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(dbPwd), []byte(pwd))
 
 	if err != nil {
-    return false
+		return false
 	}
 
 	return true
@@ -38,72 +38,73 @@ func CheckPassword(pwd, dbPwd string) bool {
 // JWT
 
 type TokenData struct {
-	Role       string `json:"id"`
+	Role     string `json:"id"`
 	Username string `json:"username"`
 }
 
 func getSecretKey() string {
 
-  err := godotenv.Load()
+	// enable this on dev
+	if os.Getenv("APP_ENV") == "dev" {
+		err := godotenv.Load()
 
-  if err!= nil {
-    panic(err)
-  }
+		if err != nil {
+			panic(err)
+		}
 
-  JWT_SECRET := os.Getenv("JWT_SECRET")
+	}
 
-  return JWT_SECRET
+	JWT_SECRET := os.Getenv("JWT_SECRET")
+
+	return JWT_SECRET
 }
 
-func GenerateToken(role, username string) (string, error){
-  // get secret
-  keyString := getSecretKey()
-  key := []byte(keyString)
+func GenerateToken(role, username string) (string, error) {
+	// get secret
+	keyString := getSecretKey()
+	key := []byte(keyString)
 
-  token := jwt.New(jwt.SigningMethodHS256)
-  claims := token.Claims.(jwt.MapClaims)
+	token := jwt.New(jwt.SigningMethodHS256)
+	claims := token.Claims.(jwt.MapClaims)
 
-  // set claims
-  claims["username"] = username
-  claims["role"] = role
-  claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+	// set claims
+	claims["username"] = username
+	claims["role"] = role
+	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 
-  // sign
-  tokenString, err := token.SignedString(key)
+	// sign
+	tokenString, err := token.SignedString(key)
 
-  if err != nil {
-    panic(err)
-  }
+	if err != nil {
+		panic(err)
+	}
 
-  return tokenString, nil
+	return tokenString, nil
 }
 
-func ParseToken(tokenString string)(*TokenData, error) {
-  // get secret
-  keyString := getSecretKey()
-  key := []byte(keyString)
+func ParseToken(tokenString string) (*TokenData, error) {
+	// get secret
+	keyString := getSecretKey()
+	key := []byte(keyString)
 
-  // parse
-  token, err := jwt.Parse(
-    tokenString,
-    func(token *jwt.Token)(interface{}, error) {
-      return key, nil
-  })
+	// parse
+	token, err := jwt.Parse(
+		tokenString,
+		func(token *jwt.Token) (interface{}, error) {
+			return key, nil
+		})
 
-  if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-    username := claims["username"].(string)
-    role := claims["role"].(string)
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		username := claims["username"].(string)
+		role := claims["role"].(string)
 
-    data := &TokenData{
-      Role: role,
-      Username: username,
-    }
+		data := &TokenData{
+			Role:     role,
+			Username: username,
+		}
 
-    return data, nil
-  } else {
-    panic(err)
-  }
+		return data, nil
+	} else {
+		panic(err)
+	}
 }
-
-
-
