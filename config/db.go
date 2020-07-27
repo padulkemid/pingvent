@@ -11,11 +11,14 @@ import (
 
 func Connection() *pg.DB {
 
-	// load env
-	err := godotenv.Load()
+	// load env ( development )
+	if os.Getenv("APP_ENV") == "dev" {
+		err := godotenv.Load()
 
-	if err != nil {
-    panic(err)
+		if err != nil {
+			panic(err)
+		}
+
 	}
 
 	// get envar
