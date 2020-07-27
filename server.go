@@ -29,7 +29,8 @@ func main() {
 	router := chi.NewRouter()
 	routerOptions := cors.Options{
 		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
-		AllowedOrigins:   []string{"http://localhost:8000"},
+    // dev : http://localhost:8000
+		AllowedOrigins:   []string{"http://localhost:8000", "https://tranquil-atoll-83602.herokuapp.com"},
 		AllowedHeaders:   []string{"Origin", "Accept", "Content-Type", "X-Requested-With", "Authorization"},
 		AllowCredentials: true,
 		Debug:            true,
@@ -57,6 +58,7 @@ func main() {
 	// Add the transport request
 	srv.AddTransport(websocketTransport)
 
+  // disable this line in prod
 	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	router.Handle("/query", srv)
 
