@@ -30,7 +30,7 @@ func main() {
 	routerOptions := cors.Options{
 		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
     // dev : http://localhost:8000
-		AllowedOrigins:   []string{"http://localhost:8000", "https://tranquil-atoll-83602.herokuapp.com"},
+		AllowedOrigins:   []string{"http://localhost:8000", "https://tranquil-atoll-83602.herokuapp.com", "https://pingpos-preview.vercel.app"},
 		AllowedHeaders:   []string{"Origin", "Accept", "Content-Type", "X-Requested-With", "Authorization"},
 		AllowCredentials: true,
 		Debug:            true,
