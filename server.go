@@ -27,13 +27,14 @@ func main() {
 	}
 
 	router := chi.NewRouter()
+
+	// localhost is for dev only add those for only debugging!
+	// also debug true is for dev only
 	routerOptions := cors.Options{
 		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
-    // dev : http://localhost:8000
-		AllowedOrigins:   []string{"http://localhost:8000", "https://tranquil-atoll-83602.herokuapp.com", "https://pingpos-preview.vercel.app"},
+		AllowedOrigins:   []string{"https://tranquil-atoll-83602.herokuapp.com", "https://pingpos-preview.vercel.app"},
 		AllowedHeaders:   []string{"Origin", "Accept", "Content-Type", "X-Requested-With", "Authorization"},
 		AllowCredentials: true,
-		Debug:            true,
 	}
 
 	newRouter := cors.New(routerOptions).Handler
@@ -58,7 +59,7 @@ func main() {
 	// Add the transport request
 	srv.AddTransport(websocketTransport)
 
-  // disable this line in prod
+	// disable this line in prod
 	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	router.Handle("/query", srv)
 
