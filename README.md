@@ -1,6 +1,7 @@
 # Pingvent 📖
 
-Your most affordable Invnetory system. 😎
+Your most affordable Inventory system. 😎  
+This is the backend part, check out the client [here!](https://github.com/padulkemid/pingvent-client)
 
 # Stacks 📚
 
