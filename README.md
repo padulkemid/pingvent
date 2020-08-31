@@ -1,6 +1,6 @@
-# Pingpos 📖
+# Pingvent 📖
 
-Your most affordable POS system. 😎
+Your most affordable Invnetory system. 😎
 
 # Stacks 📚
 
